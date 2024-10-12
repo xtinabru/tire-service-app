@@ -17,3 +17,5 @@ back/.env
 
 # Visual Studio Code
 .vscode/
+
+.env

@@ -1,0 +1,19 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# React (front)
+front/node_modules/
+front/build/
+front/.env
+
+# Express (back)
+back/node_modules/
+back/.env
+
+# macOS
+.DS_Store
+
+# Visual Studio Code
+.vscode/

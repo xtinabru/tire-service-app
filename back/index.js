@@ -80,29 +80,6 @@ app.get('/customers', (req, res) => {
   });
 });
 
- /*********************************************************************/
-// route to get a specific customer
-app.get('/customers/:id', (req, res) => {
-  const customerId = req.params.id; // get the customer id from the request
-
-  // sql query to get a customer by id
-  const query = 'SELECT * FROM customers WHERE id = ?';
-
-  // run the query
-  db.query(query, [customerId], (err, results) => {
-    if (err) {
-      console.error('Error:', err); // if there is an error, log the error
-      return res.status(500).json({ error: 'Internal Server Error' }); // error
-    }
-    // if there are no results, send a 404 response
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'Customer not found' });
-    }
-    // send the results in JSON format
-    res.json(results[0]);
-  });
-});
-
 /*********************************************************************/
 // route to CREATE a new customer
 app.post('/customers', (req, res) => { 
@@ -150,8 +127,83 @@ app.post('/customers', (req, res) => {
   });
 });
 
-/*********************************************************************/
+ /*********************************************************************/
+// route to get a specific customer
+app.get('/customers/:id', (req, res) => {
+  const customerId = req.params.id; // get the customer id from the request
 
+  // sql query to get a customer by id
+  const query = 'SELECT * FROM customers WHERE id = ?';
+
+  // run the query
+  db.query(query, [customerId], (err, results) => {
+    if (err) {
+      console.error('Error:', err); // if there is an error, log the error
+      return res.status(500).json({ error: 'Internal Server Error' }); // error
+    }
+    // if there are no results, send a 404 response
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+    // send the results in JSON format
+    res.json(results[0]);
+  });
+});
+
+/*********************************************************************/
+// route to ADD tires info
+app.post('/customers/:id/tires', (req, res) => {
+  const customerId = req.params.id; // get the customer id from the request
+  // get the tire info from the request 
+  const { tire_size, tire_manufacturer, tire_position } = req.body; 
+
+  // Check if all required fields are present
+  if (!tire_size || !tire_manufacturer || !tire_position) {
+     // if any of the required fields is missing, send an error response
+    return res.status(400).json({ error: 'Required fields are missing' }); 
+  }
+  // sql query to insert a new tire info
+  const query = 
+  ` INSERT INTO tires (customer_id, tire_size, tire_manufacturer, tire_position)
+    VALUES (?, ?, ?, ?)`;
+
+  // parameters for the query
+  const params = [customerId,tire_size, tire_manufacturer, tire_position];
+
+  // run the query
+  db.query(query, params, (err, results) => {
+    if (err) {
+      console.error('Error:', err); // if there is an error, log the error
+      return res.status(500).json({ error: 'Internal Server Error' }); // error
+    }
+    // send a success response
+    res.json({ message: 'Tire info added successfully' });
+  });
+});
+ /*********************************************************************/
+// route to get all tires for a specific customer
+app.get('/customers/:id/tires', (req, res) => {
+  const customerId = req.params.id; // get the customer id from the request
+
+  // sql query to get all tires for a specific customer
+  const query = 'SELECT * FROM tires WHERE customer_id = ?';
+
+  // run the query
+  db.query(query, [customerId], (err, results) => { 
+    if (err) {
+      console.error('Error:', err); // if there is an error, log the error
+      return res.status(500).json({ error: 'Internal Server Error' }); // error
+    }
+    // if there are no results, send a 404 response
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'No tires found for this customer' });
+    }
+    // send the results in JSON format
+    res.json(results);
+  });
+});
+
+ /*********************************************************************/
 // to run the server on port 3000
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

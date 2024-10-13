@@ -43,6 +43,7 @@ app.get('/', (req, res) => {
   res.send('Hello! This is a server for tires collection');
 });
 
+ /*********************************************************************/
 // route to get all customers
 app.get('/customers', (req, res) => {
 
@@ -200,6 +201,48 @@ app.get('/customers/:id/tires', (req, res) => {
     }
     // send the results in JSON format
     res.json(results);
+  });
+});
+
+/*********************************************************************/
+// route to DELETE a customer
+app.delete('/customers/:id', (req, res) => {
+  const customerId = req.params.id; // get the customer id from the request 
+
+  // sql query to delete a customer by id
+  const query = 'DELETE FROM customers WHERE id = ?';
+
+  // run the query
+  db.query(query, [customerId], (err, results) => {
+    if (err) {
+      console.error('Error:', err); // if there is an error, log the error
+      return res.status(500).json({ error: 'Internal Server Error' }); // error
+    }
+    // send a success response
+    res.json({ message: 'Customer deleted successfully' });
+  }); 
+});
+
+/*********************************************************************/
+// route to DELETE a specific tire for a customer
+app.delete('/customers/:customerId/tires/:tireId', (req, res) => {
+  const { customerId, tireId } = req.params; // get the customer id and tire id from the request
+
+  // sql query to delete a tire by id
+  const query = 'DELETE FROM tires WHERE id = ? AND customer_id = ?';
+
+  // run the query
+  db.query(query, [tireId, customerId], (err, results) => {
+    if (err) {
+      console.error('Error:', err); // if there is an error, log the error
+      return res.status(500).json({ error: 'Internal Server Error' }); // error
+    }
+    // check if any rows were affected
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ error: 'Tire not found for this customer' }); // if no rows were deleted
+    }
+    // send a success response
+    res.json({ message: 'Tire deleted successfully' });
   });
 });
 

@@ -1,5 +1,6 @@
 const express = require('express');
 const mysql = require('mysql2'); // to connect to mysql database
+const cors = require('cors'); // import CORS
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -10,6 +11,7 @@ if (!process.env.DB_USER || !process.env.DB_PASS) {
   process.exit(1); // exit the program
 }
 
+app.use(cors()); // allow request from any source
 app.use(express.json()); // for parsing application/json
 
 //create connection to database

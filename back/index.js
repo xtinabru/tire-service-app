@@ -247,6 +247,46 @@ app.delete('/customers/:customerId/tires/:tireId', (req, res) => {
 });
 
  /*********************************************************************/
+ app.get('/customers/:id/tires/labels', (req, res) => {
+  const customerId = req.params.id; // get the customer id from the request
+
+  // sql query to get all tires for a specific customer with customer and warehouse info
+  const query = `
+    SELECT 
+      tires.id AS tire_id, 
+      customers.id AS customer_id,
+      customers.customer_name,
+      customers.car_registration_number,
+      tires.tire_size,
+      tires.tire_manufacturer,
+      tires.tire_position,
+      warehouses.warehouse_name,
+      warehouses.warehouse_address,
+      warehouses.shelf_location,
+      warehouses.contact_person,
+      warehouses.contact_phone
+    FROM tires
+    JOIN customers ON tires.customer_id = customers.id
+    JOIN warehouses ON tires.warehouse_id = warehouses.id
+    WHERE customers.id = ?`;
+
+  // run the query
+  db.query(query, [customerId], (err, results) => {
+    // if there is an error, log the error
+    if (err) {
+      console.error('Error:', err);
+      return res.status(500).json({ error: 'Internal Server Error' }); // error
+    }
+    // if there are no results, send a 404 response
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'No tires found for this customer' });
+    }
+    // send the results in JSON format
+    res.json(results);
+  });
+});
+
+ /*********************************************************************/
 // to run the server on port 3000
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

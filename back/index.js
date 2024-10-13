@@ -37,18 +37,19 @@ db.query('SELECT 1 + 1 AS solution', (err, results) => {
   console.log('Test result:', results[0].solution); // Expected value: 2
 });
 
- /*************************************************/
-
+ /*********************************************************************/
 // route for the home page
 app.get('/', (req, res) => {
   res.send('Hello! This is a server for tires collection');
 });
 
-// route to the whole data about customers
+// route to get all customers
 app.get('/customers', (req, res) => {
+
   // get the query parameters name and registration from the request
   const {name, registration} = req.query; 
   let query = 'SELECT * FROM customers'; // base query
+
   // if the name query parameter is present
   if (name || registration) {
     query += ' WHERE'; // add a WHERE clause to the query
@@ -79,9 +80,30 @@ app.get('/customers', (req, res) => {
   });
 });
 
-//add 
+ /*********************************************************************/
+// route to get a specific customer
+app.get('/customers/:id', (req, res) => {
+  const customerId = req.params.id; // get the customer id from the request
 
+  // sql query to get a customer by id
+  const query = 'SELECT * FROM customers WHERE id = ?';
 
+  // run the query
+  db.query(query, [customerId], (err, results) => {
+    if (err) {
+      console.error('Error:', err); // if there is an error, log the error
+      return res.status(500).json({ error: 'Internal Server Error' }); // error
+    }
+    // if there are no results, send a 404 response
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+    // send the results in JSON format
+    res.json(results[0]);
+  });
+});
+
+/*********************************************************************/
 // route to CREATE a new customer
 app.post('/customers', (req, res) => { 
   const {
@@ -127,6 +149,8 @@ app.post('/customers', (req, res) => {
         'Customer tire set added successfully' });
   });
 });
+
+/*********************************************************************/
 
 // to run the server on port 3000
 app.listen(PORT, () => {

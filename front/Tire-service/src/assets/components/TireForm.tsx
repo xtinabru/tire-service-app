@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom'; 
 
+interface TireFormProps {
+  onTireAdded: () => void; // Function for updating data
+}
 
-export default function TireForm() { 
-const { customerId } = useParams<{ customerId: string }>(); // Get customerId from URL
-const parsedCustomerId = Number(customerId); // Parse the string to a number
+export default function TireForm({ onTireAdded }: TireFormProps) { 
+  const { customerId } = useParams<{ customerId: string }>(); 
+  const parsedCustomerId = Number(customerId); 
 
-// Create state for tires
-const [size, setSize] = useState('');
-const [manufacturer, setManufacturer] = useState('');
-const [position, setPosition] = useState('');
+
+  const [tire_size, setSize] = useState('');
+  const [tire_manufacturer, setManufacturer] = useState('');
+  const [tire_position, setPosition] = useState('');
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) { 
     e.preventDefault();
-    // Create tire object
-    const newTire = { size, manufacturer, position, customerId: parsedCustomerId };
-    // Send request to the server
-    fetch('http://localhost:3000/tires', {
+    // tire object
+    const newTire = { tire_size, tire_manufacturer, tire_position }; 
+   
+    fetch(`http://localhost:3000/customers/${parsedCustomerId}/tires`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -29,6 +32,7 @@ const [position, setPosition] = useState('');
       })
       .catch((error) => {
         console.error('Error:', error);
+        onTireAdded();
       });
   } 
 
@@ -39,7 +43,7 @@ const [position, setPosition] = useState('');
           Tire Size:
           <input 
             type="text" 
-            value={size} 
+            value={tire_size} 
             onChange={(e) => setSize(e.target.value)} 
             required 
           />
@@ -49,7 +53,7 @@ const [position, setPosition] = useState('');
         <label> Manufacturer:
           <input 
             type="text" 
-            value={manufacturer} 
+            value={tire_manufacturer} 
             onChange={(e) => setManufacturer(e.target.value)} 
             required 
           />
@@ -59,7 +63,7 @@ const [position, setPosition] = useState('');
         <label>Position:
           <input 
             type="text" 
-            value={position} 
+            value={tire_position} 
             onChange={(e) => setPosition(e.target.value)} 
             required 
           />

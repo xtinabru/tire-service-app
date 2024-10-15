@@ -1,7 +1,6 @@
+// App.tsx (или App.js, в зависимости от вашего проекта)
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import '../src/assets/styles/App.css';
-import '../src/assets/styles/index.css';
 import HomePage from './assets/components/HomePage';
 import CustomerList from './assets/components/CustomerList';
 import CustomerPage from './assets/components/CustomerPage';
@@ -17,7 +16,7 @@ function App() {
         <Route path="/customers" element={<CustomerList />} />
         <Route path="/customers/:id" element={<CustomerPage />} />
         <Route path="/add-customer" element={<CustomerForms />} />
-        <Route path="/add-tire/:customerId" element={<TireForm />} />
+        <Route path="/customers/:customerId/add-tire" element={<TireForm onTireAdded={() => {}} />} /> {/* Здесь передайте функцию для обновления данных */}
         <Route path="/tires/:customerId" element={<TireList />} />
       </Routes>
     </Router>

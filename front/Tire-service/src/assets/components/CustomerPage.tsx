@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Импортируем useNavigate
-
+import { useParams, useNavigate } from 'react-router-dom'; 
+import { FaTrash } from 'react-icons/fa';
 
 export default function CustomerPage() {
-  const { id } = useParams(); // Получаем ID клиента из URL
+  const { id } = useParams(); // get ID of the client from URL
   const [customer, setCustomer] = useState(null);
   const [tires, setTires] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // Используем хук useNavigate для навигации
+  const navigate = useNavigate(); //  use useNavigate for navigation
 
   useEffect(() => {
-    fetchCustomer(); // Загружаем данные клиента при первом рендере
-    fetchTires(); // Загружаем данные шин
+    fetchCustomer(); // Upload data - first render 
+    fetchTires(); // upload data about tires 
   }, [id]);
 
-  // Функция для получения данных клиента
+  // Function to get clients data
   const fetchCustomer = () => {
     fetch(`http://localhost:3000/customers/${id}`)
       .then(response => response.json())
@@ -28,7 +28,7 @@ export default function CustomerPage() {
       });
   };
 
-  // Функция для получения данных шин
+  // Function to get tires data
   const fetchTires = () => {
     fetch(`http://localhost:3000/customers/${id}/tires`)
       .then(response => response.json())
@@ -40,14 +40,30 @@ export default function CustomerPage() {
       });
   };
 
-  // Обработчик состояния загрузки
+  // function to delete tire  
+  const handleDeleteTire = (tireId) => {
+    fetch(`http://localhost:3000/customers/${id}/tires/${tireId}`, {
+      method: 'DELETE',
+    })
+      .then(response => {
+        if (response.ok) {
+          // delete the tire from the list
+          setTires(tires.filter(tire => tire.id !== tireId));
+        } else {
+          console.error('Error deleting tire:', response.statusText);
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting tire:', error);
+      });
+  };
+  // Loading state handler
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  // Обработчик для перехода на форму добавления шин
   const handleAddTire = () => {
-    navigate(`/customers/${id}/add-tire`); // Перенаправление на форму добавления шин
+    navigate(`/customers/${id}/add-tire`); 
   };
 
   return (
@@ -65,6 +81,12 @@ export default function CustomerPage() {
           {tires.map(tire => (
             <li key={tire.id}>
               {tire.tire_size} - {tire.tire_manufacturer} ({tire.tire_position})
+
+          <button onClick={() => handleDeleteTire(tire.id)} 
+          style={{ marginLeft: '10px', border: 'none', 
+          background: 'none',      cursor: 'pointer' }}>
+                <FaTrash color="red" />
+              </button>
             </li>
           ))}
         </ul>
@@ -72,7 +94,7 @@ export default function CustomerPage() {
         <p>No tires found for this customer.</p>
       )}
 
-      <button onClick={handleAddTire}>Add Tire</button> {/* Кнопка для перехода на форму добавления шин */}
+      <button onClick={handleAddTire}>Add Tire</button> 
     </div>
   );
 }

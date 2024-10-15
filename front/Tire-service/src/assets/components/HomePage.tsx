@@ -9,7 +9,6 @@ function HomePage() {
       <br />
       <Link to="/add-customer">Add New Customer</Link>
       <br />
-      <Link to="/add-tire">Add New Tire Information</Link>
     </div>
   );
 }

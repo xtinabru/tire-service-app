@@ -29,11 +29,17 @@ export default function CustomerPage() {
   };
 
   // Function to get tires data
-  const fetchTires = () => {
+ const fetchTires = () => {
     fetch(`http://localhost:3000/customers/${id}/tires`)
       .then(response => response.json())
       .then(data => {
         setTires(data);
+        if (customer) {
+          setCustomer(prevCustomer => ({
+            ...prevCustomer,
+            number_of_tires: data.length, // renew the quantity
+          }));
+        }
       })
       .catch(error => {
         console.error('Error fetching tires:', error);
@@ -57,6 +63,15 @@ export default function CustomerPage() {
         console.error('Error deleting tire:', error);
       });
   };
+  useEffect(() => {
+    if (customer) {
+      setCustomer(prevCustomer => ({
+        ...prevCustomer,
+        number_of_tires: tires.length, // renew the quantity of tires
+      }));
+    }
+  }, [tires]); // This useEffect works when tires [] is changes 
+
   // Loading state handler
   if (loading) {
     return <div>Loading...</div>;
@@ -84,7 +99,7 @@ export default function CustomerPage() {
 
           <button onClick={() => handleDeleteTire(tire.id)} 
           style={{ marginLeft: '10px', border: 'none', 
-          background: 'none',      cursor: 'pointer' }}>
+          background: 'none', cursor: 'pointer' }}>
                 <FaTrash color="red" />
               </button>
             </li>

@@ -7,7 +7,6 @@ interface Customer {
   customer_name: string;
   car_registration_number: string;
   car_model: string;
-  warehouse_name: string;
   number_of_tires: number;
 }
 
@@ -83,6 +82,10 @@ export default function CustomerPage() {
     navigate(`/customers/${id}/add-tire`); 
   };
 
+  const handlePrintLabels = () => {
+    navigate(`/customers/${id}/tires/labels`); // Перейти на страницу печати меток
+  };
+
   // count the quantity just once during the render 
   const numberOfTires = tires.length;
 
@@ -91,46 +94,48 @@ export default function CustomerPage() {
       <h1>Customer Details</h1>
       {customer ? (
       <>
-      <p>Name: {customer.customer_name}</p>
-      <p>Car Registration Number: {customer.car_registration_number}</p>
-      <p>Car Model: {customer.car_model}</p>
-      <p>Warehouse Name: {customer.warehouse_name}</p>
-      <p>Number of Tires: {numberOfTires}</p> {/* use the value counted*/}
+        <p>Name: {customer.customer_name}</p>
+        <p>Car Registration Number: {customer.car_registration_number}</p>
+        <p>Car Model: {customer.car_model}</p>
+        <p>Number of Tires: {numberOfTires}</p> {/* use the value counted*/}
       </>
       ) : (
         <p>Loading customer data...</p>
       )}
-    <h2>Tire Details</h2>
-    {tires.length > 0 ? (
-      <table>
-        <thead >
-          <tr>
-            <th>Tire Size</th>
-            <th>Manufacturer</th>
-            <th>Position</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tires.map(tire => (
-            <tr key={tire.id}>
-              <td>{tire.tire_size}</td>
-              <td>{tire.tire_manufacturer}</td>
-              <td>{tire.tire_position}</td>
-              <td>
-                <button 
-              onClick={() => handleDeleteTire(tire.id)} 
-              >
-                  <FaTrash color="red" />
-                </button>
-              </td>
+
+      <div>
+        <button onClick={handlePrintLabels}>Print Labels</button> {/* Кнопка для печати */}
+      </div>
+
+      <h2>Tire Details</h2>
+      {tires.length > 0 ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Tire Size</th>
+              <th>Manufacturer</th>
+              <th>Position</th>
+              <th>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    ) : (
-      <p>No tires found for this customer.</p>
-    )}
+          </thead>
+          <tbody>
+            {tires.map(tire => (
+              <tr key={tire.id}>
+                <td>{tire.tire_size}</td>
+                <td>{tire.tire_manufacturer}</td>
+                <td>{tire.tire_position}</td>
+                <td>
+                  <button onClick={() => handleDeleteTire(tire.id)}>
+                    <FaTrash color="red" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No tires found for this customer.</p>
+      )}
 
       <button onClick={handleAddTire}>Add Tire</button> 
     </div>

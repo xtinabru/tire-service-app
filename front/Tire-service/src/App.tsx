@@ -4,6 +4,7 @@ import CustomerList from './assets/components/CustomerList';
 import CustomerPage from './assets/components/CustomerPage';
 import TireForm from './assets/components/TireForm';
 import CustomerForms from './assets/components/CustomerForm';
+import PrintLabels from './assets/components/PrintLabels';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/customers/:id" element={<CustomerPage />} />
         <Route path="/add-customer" element={<CustomerForms />} />
         <Route path="/customers/:customerId/add-tire" element={<TireForm onTireAdded={() => {}} />} /> 
+        <Route path="/customers/:id/tires/labels" element={<PrintLabels />} />
      
       </Routes>
     </Router>

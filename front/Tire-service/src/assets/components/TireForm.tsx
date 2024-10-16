@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
-
 interface TireFormProps {
-  onTireAdded: () => void; // Function for updating data
+  onTireAdded: () => void;
 }
+
 interface Tire {
   id: number;
   tire_size: string;
@@ -13,7 +13,7 @@ interface Tire {
 }
 
 export default function TireForm({ onTireAdded }: TireFormProps) {
-  const { customerId } = useParams<{ customerId: string }>(); 
+  const { customerId } = useParams<{ customerId: string }>();
   const parsedCustomerId = Number(customerId); 
   const [tire_size, setSize] = useState('');
   const [tire_manufacturer, setManufacturer] = useState('');
@@ -24,53 +24,50 @@ export default function TireForm({ onTireAdded }: TireFormProps) {
     fetchTires();
   }, [parsedCustomerId]);
 
-  // Функция для получения данных о шинах
   const fetchTires = () => {
     fetch(`http://localhost:3000/customers/${parsedCustomerId}/tires`)
       .then(response => response.json())
       .then(data => {
+        console.log('Fetched Tires:', data); // Логируем полученные шины
         setTires(data);
       })
       .catch(error => console.error('Error fetching tires:', error));
   };
 
-  // Функция для удаления шины
-  const handleDeleteTire = (tireId: number) => {
-    fetch(`http://localhost:3000/customers/${parsedCustomerId}/tires/${tireId}`, {
-      method: 'DELETE',
-    })
-      .then(response => {
-        if (response.ok) {
-          // Обновляем список после удаления
-          setTires(tires.filter(tire => tire.id !== tireId));
-        } else {
-          console.error('Error deleting tire:', response.statusText);
-        }
-      })
-      .catch(error => console.error('Error deleting tire:', error));
-  };
-
-  // Обработчик отправки формы
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const newTire = { tire_size, tire_manufacturer, tire_position };
+
+    const newTire = { 
+      tire_size, 
+      tire_manufacturer, 
+      tire_position 
+    };
+
+    console.log('Submitting Tire with data:', newTire);
 
     fetch(`http://localhost:3000/customers/${parsedCustomerId}/tires`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
       },
-      body: JSON.stringify(newTire),
+      body: JSON.stringify(newTire), 
     })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Success:', data);
-        onTireAdded();
-        fetchTires(); // Обновить список шин после добавления
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        console.error('Error:', data.error);
+        return; // Если есть ошибка, не продолжать
+      }
+      console.log('Success:', data);
+      onTireAdded();
+      fetchTires(); // Обновляем список шин
+      setSize(''); // Сбрасываем поля формы
+      setManufacturer('');
+      setPosition('');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
   }
 
   return (
@@ -109,10 +106,9 @@ export default function TireForm({ onTireAdded }: TireFormProps) {
         </label>
       </div>
       <button type="submit">Add Tire</button>
-
       <h2>Tire Details</h2>
       {tires.length > 0 ? (
-        <table border="1" style={{ width: '100%', textAlign: 'left' }}>
+        <table>
           <thead>
             <tr>
               <th>Tire Size</th>
@@ -126,7 +122,7 @@ export default function TireForm({ onTireAdded }: TireFormProps) {
                 <td>{tire.tire_size}</td>
                 <td>{tire.tire_manufacturer}</td>
                 <td>{tire.tire_position}</td>
-                </tr>
+              </tr>
             ))}
           </tbody>
         </table>

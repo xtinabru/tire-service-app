@@ -16,7 +16,7 @@ function App() {
         <Route path="/customers" element={<CustomerList />} />
         <Route path="/customers/:id" element={<CustomerPage />} />
         <Route path="/add-customer" element={<CustomerForms />} />
-        <Route path="/customers/:customerId/add-tire" element={<TireForm onTireAdded={() => {}} />} /> {/* Здесь передайте функцию для обновления данных */}
+        <Route path="/customers/:customerId/add-tire" element={<TireForm onTireAdded={() => {}} />} /> 
         <Route path="/tires/:customerId" element={<TireList />} />
       </Routes>
     </Router>

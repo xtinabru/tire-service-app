@@ -90,24 +90,37 @@ export default function CustomerPage() {
       <p>Warehouse Name: {customer.warehouse_name}</p>
       <p>Number of Tires: {customer.number_of_tires}</p>
 
-      <h2>Tires</h2>
-      {tires.length > 0 ? (
-        <ul>
+      <h2>Tire Details</h2>
+    {tires.length > 0 ? (
+      <table border="1" style={{ width: '100%', textAlign: 'left' }}>
+        <thead>
+          <tr>
+            <th>Tire Size</th>
+            <th>Manufacturer</th>
+            <th>Position</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
           {tires.map(tire => (
-            <li key={tire.id}>
-              {tire.tire_size} - {tire.tire_manufacturer} ({tire.tire_position})
-
-          <button onClick={() => handleDeleteTire(tire.id)} 
-          style={{ marginLeft: '10px', border: 'none', 
-          background: 'none', cursor: 'pointer' }}>
-                <FaTrash color="red" />
-              </button>
-            </li>
+            <tr key={tire.id}>
+              <td>{tire.tire_size}</td>
+              <td>{tire.tire_manufacturer}</td>
+              <td>{tire.tire_position}</td>
+              <td>
+                <button 
+                  onClick={() => handleDeleteTire(tire.id)} 
+                  style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                  <FaTrash color="red" />
+                </button>
+              </td>
+            </tr>
           ))}
-        </ul>
-      ) : (
-        <p>No tires found for this customer.</p>
-      )}
+        </tbody>
+      </table>
+    ) : (
+      <p>No tires found for this customer.</p>
+    )}
 
       <button onClick={handleAddTire}>Add Tire</button> 
     </div>

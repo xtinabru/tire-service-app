@@ -51,19 +51,12 @@ export default function TireForm({ onTireAdded }: TireFormProps) {
           'Content-Type': 'application/json',
       },
       body: JSON.stringify(newTire), 
-    })
+  })
     .then(response => response.json())
     .then(data => {
-      if (data.error) {
-        console.error('Error:', data.error);
-        return; // Если есть ошибка, не продолжать
-      }
       console.log('Success:', data);
       onTireAdded();
-      fetchTires(); // Обновляем список шин
-      setSize(''); // Сбрасываем поля формы
-      setManufacturer('');
-      setPosition('');
+      fetchTires();
     })
     .catch(error => {
       console.error('Error:', error);

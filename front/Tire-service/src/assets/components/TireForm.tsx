@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaTrash } from 'react-icons/fa';
+
 
 interface TireFormProps {
   onTireAdded: () => void; // Function for updating data
+}
+interface Tire {
+  id: number;
+  tire_size: string;
+  tire_manufacturer: string;
+  tire_position: string;
 }
 
 export default function TireForm({ onTireAdded }: TireFormProps) {
@@ -12,7 +18,7 @@ export default function TireForm({ onTireAdded }: TireFormProps) {
   const [tire_size, setSize] = useState('');
   const [tire_manufacturer, setManufacturer] = useState('');
   const [tire_position, setPosition] = useState('');
-  const [tires, setTires] = useState([]);
+  const [tires, setTires] = useState<Tire[]>([]);
 
   useEffect(() => {
     fetchTires();

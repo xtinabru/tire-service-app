@@ -1,21 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'; 
 import { FaTrash } from 'react-icons/fa';
 
+interface Customer {
+  id: number;
+  customer_name: string;
+  car_registration_number: string;
+  car_model: string;
+  warehouse_name: string;
+  number_of_tires: number;
+}
+
+interface Tire {
+  id: number;
+  tire_size: string;
+  tire_manufacturer: string;
+  tire_position: string;
+}
+
 export default function CustomerPage() {
   const { id } = useParams(); // get ID of the client from URL
-  const [customer, setCustomer] = useState(null);
-  const [tires, setTires] = useState([]);
+  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [tires, setTires] = useState<Tire[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); //  use useNavigate for navigation
-
-  useEffect(() => {
-    fetchCustomer(); // Upload data - first render 
-    fetchTires(); // upload data about tires 
-  }, [id]);
+  const navigate = useNavigate(); 
 
   // Function to get clients data
-  const fetchCustomer = () => {
+  const fetchCustomer = useCallback(() => {
     fetch(`http://localhost:3000/customers/${id}`)
       .then(response => response.json())
       .then(data => {
@@ -26,28 +37,27 @@ export default function CustomerPage() {
         console.error('Error fetching customer:', error);
         setLoading(false);
       });
-  };
+  }, [id]); 
 
   // Function to get tires data
- const fetchTires = () => {
+  const fetchTires = useCallback(() => {
     fetch(`http://localhost:3000/customers/${id}/tires`)
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         setTires(data);
-        if (customer) {
-          setCustomer(prevCustomer => ({
-            ...prevCustomer,
-            number_of_tires: data.length, // renew the quantity
-          }));
-        }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching tires:', error);
       });
-  };
+  }, [id]); 
 
+  useEffect(() => {
+    fetchCustomer(); // Upload data - first render 
+    fetchTires(); // upload data about tires 
+  }, [fetchCustomer, fetchTires]);
+  
   // function to delete tire  
-  const handleDeleteTire = (tireId) => {
+  const handleDeleteTire = (tireId: number) => {
     fetch(`http://localhost:3000/customers/${id}/tires/${tireId}`, {
       method: 'DELETE',
     })
@@ -63,14 +73,6 @@ export default function CustomerPage() {
         console.error('Error deleting tire:', error);
       });
   };
-  useEffect(() => {
-    if (customer) {
-      setCustomer(prevCustomer => ({
-        ...prevCustomer,
-        number_of_tires: tires.length, // renew the quantity of tires
-      }));
-    }
-  }, [tires]); // This useEffect works when tires [] is changes 
 
   // Loading state handler
   if (loading) {
@@ -81,19 +83,27 @@ export default function CustomerPage() {
     navigate(`/customers/${id}/add-tire`); 
   };
 
+  // count the quantity just once during the render 
+  const numberOfTires = tires.length;
+
   return (
     <div>
       <h1>Customer Details</h1>
+      {customer ? (
+      <>
       <p>Name: {customer.customer_name}</p>
       <p>Car Registration Number: {customer.car_registration_number}</p>
       <p>Car Model: {customer.car_model}</p>
       <p>Warehouse Name: {customer.warehouse_name}</p>
-      <p>Number of Tires: {customer.number_of_tires}</p>
-
-      <h2>Tire Details</h2>
+      <p>Number of Tires: {numberOfTires}</p> {/* use the value counted*/}
+      </>
+      ) : (
+        <p>Loading customer data...</p>
+      )}
+    <h2>Tire Details</h2>
     {tires.length > 0 ? (
-      <table border="1" style={{ width: '100%', textAlign: 'left' }}>
-        <thead>
+      <table>
+        <thead >
           <tr>
             <th>Tire Size</th>
             <th>Manufacturer</th>
@@ -109,8 +119,8 @@ export default function CustomerPage() {
               <td>{tire.tire_position}</td>
               <td>
                 <button 
-                  onClick={() => handleDeleteTire(tire.id)} 
-                  style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+              onClick={() => handleDeleteTire(tire.id)} 
+              >
                   <FaTrash color="red" />
                 </button>
               </td>

@@ -1,20 +1,21 @@
+// Import required modules
 const express = require('express');
-const mysql = require('mysql2'); // to connect to mysql database
-const cors = require('cors'); // import CORS
+const mysql = require('mysql2'); // MySQL driver
+const cors = require('cors'); // For Cross-Origin Resource Sharing
 const app = express();
 const PORT = process.env.PORT || 3000;
+require('dotenv').config(); // Load .env configuration
 
-require('dotenv').config();// to use .env file
-
+// Check if essential environment variables are loaded
 if (!process.env.DB_USER || !process.env.DB_PASS) {
-  console.error('No .env file loaded');
-  process.exit(1); // exit the program
+  console.error('No .env file loaded or missing DB credentials');
+  process.exit(1);
 }
 
-app.use(cors()); // allow request from any source
-app.use(express.json()); // for parsing application/json
+app.use(cors()); // Allow cross-origin requests
+app.use(express.json()); // Parse JSON request body
 
-//create connection to database
+// Create MySQL connection using environment variables
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -22,70 +23,59 @@ const db = mysql.createConnection({
   database: process.env.DB_NAME
 });
 
-// connect to database
+// Connect to the database
 db.connect((err) => {
-  if (err) {
-    throw err; // if there is an error, throw an error
-  }
-  console.log('Connected to database'); // successful connection
+  if (err) throw err;
+  console.log('Connected to the database');
 });
 
-// check the connection to the database
+// Test database connection
 db.query('SELECT 1 + 1 AS solution', (err, results) => {
-  if (err) {
-    console.error('Error :', err); // if there is an error, log the error
-    return; // exit the function
-  }
-  console.log('Test result:', results[0].solution); // Expected value: 2
+  if (err) console.error('Error:', err);
+  else console.log('Test result:', results[0].solution); // Expect 2
 });
 
- /*********************************************************************/
-// route for the home page
+/*********************************************************************/
+// Home route
 app.get('/', (req, res) => {
-  res.send('Hello! This is a server for tires collection');
+  res.send('Hello! This is a server for tire collection');
 });
 
- /*********************************************************************/
-// route to get all customers
+/*********************************************************************/
+// Get all customers or filter by name or registration number
 app.get('/customers', (req, res) => {
+  const { name, registration } = req.query;
+  let query = 'SELECT * FROM customers';
+  const conditions = [];
+  const params = [];
 
-  // get the query parameters name and registration from the request
-  const {name, registration} = req.query; 
-  let query = 'SELECT * FROM customers'; // base query
-
-  // if the name query parameter is present
-  if (name || registration) {
-    query += ' WHERE'; // add a WHERE clause to the query
-  }
-  // add filtration conditions to the query
-  const conditions = []; // array to store the conditions
-  const params = []; // array to store the parameters
-
-  // if the name query parameter is present
+  // Apply filters if provided
   if (name) {
-    conditions.push('customer_name LIKE ?'); //add a condition to filter by name
-    params.push(`%${name}%`); // add the parameter to the array
-}
-  // if the registration query parameter is present
+    conditions.push('customer_name LIKE ?');
+    params.push(`%${name}%`);
+  }
   if (registration) {
-    conditions.push('car_registration_number LIKE ?'); // add a condition to filter by registration
-    params.push(`%${registration}%`); // add the parameter to the array
-}
-  // after adding all the conditions we join them with AND
-  query += ' ' + conditions.join(' AND ');
+    conditions.push('car_registration_number LIKE ?');
+    params.push(`%${registration}%`);
+  }
+  if (conditions.length) {
+    query += ' WHERE ' + conditions.join(' AND ');
+  }
 
-  // then we run the query
+  // Execute the query
   db.query(query, params, (err, results) => {
     if (err) {
-      console.error('Error :', err); // if there is an error, log the error
-      res.status(500).json({error: 'Internal Server Error'}); // send an error response
-    } res.json(results); // send the results in JSON format
+      console.error('Error:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json(results);
+    }
   });
 });
 
 /*********************************************************************/
-// route to CREATE a new customer
-app.post('/customers', (req, res) => { 
+// Create a new customer
+app.post('/customers', (req, res) => {
   const {
     customer_name,
     car_registration_number,
@@ -93,204 +83,165 @@ app.post('/customers', (req, res) => {
     tire_size,
     tire_manufacturer,
     warehouse_name,
-    number_of_tires,
+    number_of_tires
   } = req.body;
 
-  // Check if all required fields are present
-  if (!customer_name || !car_registration_number || !number_of_tires ||!car_model || !tire_size || !tire_manufacturer || !warehouse_name)
-   {return res.status(400).json({ error: 'Required fields are missing' }); 
-   // if any of the required fields is missing, send an error response
+  // Validate required fields
+  if (!customer_name || !car_registration_number || !number_of_tires || !car_model || !tire_size || !tire_manufacturer || !warehouse_name) {
+    return res.status(400).json({ error: 'Required fields are missing' });
   }
-   // sql query to insert a new customer
-  const query = 
-  `INSERT INTO customers (customer_name, car_registration_number,
-   car_model, tire_size, tire_manufacturer, 
-   warehouse_name, number_of_tires)
-   VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
-  // parameters for the query
-   const params = [
+  const query = `
+    INSERT INTO customers (customer_name, car_registration_number, car_model, tire_size, tire_manufacturer, warehouse_name, number_of_tires)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const params = [
     customer_name,
     car_registration_number,
-    car_model || null, //  if the model isn't specified, pass null
-    tire_size || null, // if the size isn't specified, pass null
-    tire_manufacturer || null, // if the manufacturer isn't specified, pass null
-    warehouse_name || null, // if the warehouse isn't specified, pass null
-    number_of_tires,];
+    car_model,
+    tire_size,
+    tire_manufacturer,
+    warehouse_name,
+    number_of_tires
+  ];
 
-  // run the query
-    db.query(query, params, (err, results) => {
-      if (err) {
-      console.error('Error:', err); // if there is an error, log the error
-      return res.status(500).json({ error: 'Internal Server Error' }); // error
-      }
-      // send a success response
-      res.status(201).json({ id: results.insertId, message: 
-        'Customer tire set added successfully' });
+  db.query(query, params, (err, results) => {
+    if (err) {
+      console.error('Error:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    res.status(201).json({ id: results.insertId, message: 'Customer tire set added successfully' });
   });
 });
 
- /*********************************************************************/
-// route to get a specific customer
+/*********************************************************************/
+// Get a specific customer by ID
 app.get('/customers/:id', (req, res) => {
-  const customerId = req.params.id; // get the customer id from the request
-
-  // sql query to get a customer by id
+  const customerId = req.params.id;
   const query = 'SELECT * FROM customers WHERE id = ?';
 
-  // run the query
   db.query(query, [customerId], (err, results) => {
     if (err) {
-      console.error('Error:', err); // if there is an error, log the error
-      return res.status(500).json({ error: 'Internal Server Error' }); // error
+      console.error('Error:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
-    // if there are no results, send a 404 response
     if (results.length === 0) {
       return res.status(404).json({ error: 'Customer not found' });
     }
-    // send the results in JSON format
     res.json(results[0]);
   });
 });
 
 /*********************************************************************/
-// route to ADD tires info
+// Add tire info for a customer
+// Add tire info for a customer
 app.post('/customers/:id/tires', (req, res) => {
-  const customerId = req.params.id; // get the customer id from the request
-  // get the tire info from the request 
-  const { tire_size, tire_manufacturer, tire_position } = req.body; 
+  const { tire_size, tire_manufacturer, tire_position } = req.body;
 
-  // Check if all required fields are present
+  // Проверка на наличие обязательных полей
   if (!tire_size || !tire_manufacturer || !tire_position) {
-     // if any of the required fields is missing, send an error response
-    return res.status(400).json({ error: 'Required fields are missing' }); 
+      console.error('Received body:', req.body); // Логируем полученные данные
+      return res.status(400).json({ error: 'Required fields are missing' });
   }
-  // sql query to insert a new tire info
-  const query = 
-  ` INSERT INTO tires (customer_id, tire_size, tire_manufacturer, tire_position)
-    VALUES (?, ?, ?, ?)`;
 
-  // parameters for the query
-  const params = [customerId,tire_size, tire_manufacturer, tire_position];
-
-  // run the query
-  db.query(query, params, (err, results) => {
-    if (err) {
-      console.error('Error:', err); // if there is an error, log the error
-      return res.status(500).json({ error: 'Internal Server Error' }); // error
-    }
-    // send a success response
-    res.json({ message: 'Tire info added successfully' });
+  // SQL запрос для добавления новой шины
+  const query = `INSERT INTO tires (tire_size, tire_manufacturer, tire_position, customer_id) VALUES (?, ?, ?, ?)`;
+  
+  db.query(query, [tire_size, tire_manufacturer, tire_position, req.params.id], (err, results) => {
+      if (err) {
+          console.error('Error:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+      }
+      res.status(201).json({ id: results.insertId, tire_size, tire_manufacturer, tire_position });
   });
 });
- /*********************************************************************/
-// route to get all tires for a specific customer
-app.get('/customers/:id/tires', (req, res) => {
-  const customerId = req.params.id; // get the customer id from the request
 
-  // sql query to get all tires for a specific customer
+/*********************************************************************/
+// Get all tires for a specific customer
+app.get('/customers/:id/tires', (req, res) => {
+  const customerId = req.params.id;
   const query = 'SELECT * FROM tires WHERE customer_id = ?';
 
-  // run the query
-  db.query(query, [customerId], (err, results) => { 
+  db.query(query, [customerId], (err, results) => {
     if (err) {
-      console.error('Error:', err); // if there is an error, log the error
-      return res.status(500).json({ error: 'Internal Server Error' }); // error
+      console.error('Error:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
-    // if there are no results, send a 404 response
     if (results.length === 0) {
       return res.status(404).json({ error: 'No tires found for this customer' });
     }
-    // send the results in JSON format
     res.json(results);
   });
 });
 
 /*********************************************************************/
-// route to DELETE a customer
+// Delete a customer
 app.delete('/customers/:id', (req, res) => {
-  const customerId = req.params.id; // get the customer id from the request 
-
-  // sql query to delete a customer by id
+  const customerId = req.params.id;
   const query = 'DELETE FROM customers WHERE id = ?';
 
-  // run the query
   db.query(query, [customerId], (err, results) => {
     if (err) {
-      console.error('Error:', err); // if there is an error, log the error
-      return res.status(500).json({ error: 'Internal Server Error' }); // error
+      console.error('Error:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
-    // send a success response
     res.json({ message: 'Customer deleted successfully' });
-  }); 
+  });
 });
 
 /*********************************************************************/
-// route to DELETE a specific tire for a customer
+// Delete a specific tire for a customer
 app.delete('/customers/:customerId/tires/:tireId', (req, res) => {
-  const { customerId, tireId } = req.params; // get the customer id and tire id from the request
-
-  // sql query to delete a tire by id
+  const { customerId, tireId } = req.params;
   const query = 'DELETE FROM tires WHERE id = ? AND customer_id = ?';
 
-  // run the query
   db.query(query, [tireId, customerId], (err, results) => {
     if (err) {
-      console.error('Error:', err); // if there is an error, log the error
-      return res.status(500).json({ error: 'Internal Server Error' }); // error
+      console.error('Error:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
-    // check if any rows were affected
     if (results.affectedRows === 0) {
-      return res.status(404).json({ error: 'Tire not found for this customer' }); // if no rows were deleted
+      return res.status(404).json({ error: 'Tire not found for this customer' });
     }
-    // send a success response
     res.json({ message: 'Tire deleted successfully' });
   });
 });
 
- /*********************************************************************/
- app.get('/customers/:id/tires/labels', (req, res) => {
+/*********************************************************************/
+// route to get tire labels for a specific customer
+app.get('/customers/:id/tires/labels', (req, res) => {
   const customerId = req.params.id; // get the customer id from the request
 
-  // sql query to get all tires for a specific customer with customer and warehouse info
+  // SQL query to get tire labels for a specific customer
   const query = `
     SELECT 
-      tires.id AS tire_id, 
-      customers.id AS customer_id,
+      tires.id AS tire_id,
       customers.customer_name,
       customers.car_registration_number,
       tires.tire_size,
       tires.tire_manufacturer,
-      tires.tire_position,
-      warehouses.warehouse_name,
-      warehouses.warehouse_address,
-      warehouses.shelf_location,
-      warehouses.contact_person,
-      warehouses.contact_phone
-    FROM tires
-    JOIN customers ON tires.customer_id = customers.id
-    JOIN warehouses ON tires.warehouse_id = warehouses.id
-    WHERE customers.id = ?`;
+      tires.tire_position
+    FROM 
+      tires
+    JOIN 
+      customers ON tires.customer_id = customers.id
+    WHERE 
+      customers.id = ?;
+  `;
 
-  // run the query
+  // Run the query
   db.query(query, [customerId], (err, results) => {
-    // if there is an error, log the error
     if (err) {
       console.error('Error:', err);
-      return res.status(500).json({ error: 'Internal Server Error' }); // error
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
-    // if there are no results, send a 404 response
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'No tires found for this customer' });
-    }
-    // send the results in JSON format
+    // Send the results in JSON format
     res.json(results);
   });
 });
-
- /*********************************************************************/
-// to run the server on port 3000
+/*********************************************************************/
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-

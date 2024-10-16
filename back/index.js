@@ -135,6 +135,7 @@ app.get('/customers/:id', (req, res) => {
 
 /*********************************************************************/
 // Add tire info for a customer
+<<<<<<< HEAD
 app.post('/customers/:id/tires', (req, res) => {
     const { tire_size, tire_manufacturer, tire_position } = req.body;
 
@@ -158,6 +159,30 @@ app.post('/customers/:id/tires', (req, res) => {
 
 
 
+=======
+// Add tire info for a customer
+app.post('/customers/:id/tires', (req, res) => {
+  const { tire_size, tire_manufacturer, tire_position } = req.body;
+
+  // Проверка на наличие обязательных полей
+  if (!tire_size || !tire_manufacturer || !tire_position) {
+      console.error('Received body:', req.body); // Логируем полученные данные
+      return res.status(400).json({ error: 'Required fields are missing' });
+  }
+
+  // SQL запрос для добавления новой шины
+  const query = `INSERT INTO tires (tire_size, tire_manufacturer, tire_position, customer_id) VALUES (?, ?, ?, ?)`;
+  
+  db.query(query, [tire_size, tire_manufacturer, tire_position, req.params.id], (err, results) => {
+      if (err) {
+          console.error('Error:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+      }
+      res.status(201).json({ id: results.insertId, tire_size, tire_manufacturer, tire_position });
+  });
+});
+
+>>>>>>> e2bff07335aee00196e79728f8fb67425d9608d3
 /*********************************************************************/
 // Get all tires for a specific customer
 app.get('/customers/:id/tires', (req, res) => {

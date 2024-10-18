@@ -1,4 +1,5 @@
 import React, {useState} from 'react'
+import '../styles/CustomerForm.css'
 
 export default function CustomerForms() {
 
@@ -73,7 +74,7 @@ export default function CustomerForms() {
   }
 
   return (
-    <div>
+    <div className="customer-forms">
       <h2>Add a new customer</h2>
       <form onSubmit={handleSubmitTheForm}>
         <div>

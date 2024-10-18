@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'; 
 import { FaTrash } from 'react-icons/fa';
+import '../styles/CustomerPage.css'; 
 
 interface Customer {
   id: number;
@@ -83,28 +84,32 @@ export default function CustomerPage() {
   };
 
   const handlePrintLabels = () => {
-    navigate(`/customers/${id}/tires/labels`); // Перейти на страницу печати меток
+    navigate(`/customers/${id}/tires/labels`);
   };
 
   // count the quantity just once during the render 
   const numberOfTires = tires.length;
 
   return (
-    <div>
+    <div className="customer-page">
       <h1>Customer Details</h1>
       {customer ? (
       <>
-        <p>Name: {customer.customer_name}</p>
-        <p>Car Registration Number: {customer.car_registration_number}</p>
-        <p>Car Model: {customer.car_model}</p>
-        <p>Number of Tires: {numberOfTires}</p> {/* use the value counted*/}
+        <p><span style={{ fontWeight: 'bold', color: '#ffcc00', marginRight: '1rem'}}>Name:</span> 
+        <span>{customer.customer_name}</span></p>
+        <p><span style={{ fontWeight: 'bold', color: '#ffcc00', marginRight: '1rem'}}>Car Registration Number:</span> 
+        <span>{customer.car_registration_number}</span></p>
+        <p><span style={{ fontWeight: 'bold', color: '#ffcc00', marginRight: '1rem'}}>Car Model:</span> 
+        <span>{customer.car_model}</span></p>
+        <p><span style={{ fontWeight: 'bold', color: '#ffcc00', marginRight: '1rem'}}>Number of Tires:</span> 
+        <span>{numberOfTires}</span></p> {/* use the value counted*/}
       </>
       ) : (
         <p>Loading customer data...</p>
       )}
 
       <div>
-        <button onClick={handlePrintLabels}>Print Labels</button> {/* Кнопка для печати */}
+        <button onClick={handlePrintLabels}>Print Labels</button> 
       </div>
 
       <h2>Tire Details</h2>
@@ -126,7 +131,7 @@ export default function CustomerPage() {
                 <td>{tire.tire_position}</td>
                 <td>
                   <button onClick={() => handleDeleteTire(tire.id)}>
-                    <FaTrash color="red" />
+                    <FaTrash color="white" />
                   </button>
                 </td>
               </tr>

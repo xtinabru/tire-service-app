@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../styles/CustomerList.css';
 
 interface Customer {
   id: number; 
@@ -38,7 +39,7 @@ export default function CustomerList() {
   );
 
   return (
-    <div>
+    <div className="customer-list">
       <h2>Our customers</h2>
       {/* Search input */}
       <input

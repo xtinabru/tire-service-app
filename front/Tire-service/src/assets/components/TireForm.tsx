@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import '../styles/TireForm.css'
 
 interface TireFormProps {
   onTireAdded: () => void;
@@ -99,7 +100,7 @@ export default function TireForm({ onTireAdded }: TireFormProps) {
         </label>
       </div>
       <button type="submit">Add Tire</button>
-      <h2>Tire Details</h2>
+      <h2>Tires in stock</h2>
       {tires.length > 0 ? (
         <table>
           <thead>

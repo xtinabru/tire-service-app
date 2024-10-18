@@ -5,6 +5,10 @@ import CustomerPage from './assets/components/CustomerPage';
 import TireForm from './assets/components/TireForm';
 import CustomerForms from './assets/components/CustomerForm';
 import PrintLabels from './assets/components/PrintLabels';
+import './assets/styles/App.css';
+import './assets/styles/index.css';
+import './assets/styles/CustomerList.css';
+
 
 function App() {
   return (

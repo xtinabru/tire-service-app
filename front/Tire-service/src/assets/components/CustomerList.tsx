@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/CustomerList.css';
+
 
 interface Customer {
   id: number; 

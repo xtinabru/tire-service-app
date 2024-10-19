@@ -1,8 +1,14 @@
-import React, {useState} from 'react'
-import '../styles/CustomerForm.css'
+import React, { useState } from 'react';
+import { TextField, Typography, Button } from '@mui/material'; // Импортируем необходимые компоненты из MUI
+import CustomButton from './CustomButton';
+
+interface CustomButtonProps {
+  children: ReactNode;
+  to: string;
+}
+
 
 export default function CustomerForms() {
-
   const [customerName, setCustomerName] = useState('');
   const [registrationNumber, setRegistrationNumber] = useState('');
   const [carModel, setCarModel] = useState('');
@@ -10,7 +16,6 @@ export default function CustomerForms() {
   const [tireManufacturer, setTireManufacturer] = useState('');
   const [warehouseName, setWarehouseName] = useState('');
   const [numberOfTires, setNumberOfTires] = useState(0);
-
   const [isLoading, setIsLoading] = useState(false);
 
   // clear the form
@@ -24,16 +29,15 @@ export default function CustomerForms() {
     setNumberOfTires(0);
   };
 
-  function handleSubmitTheForm(e: React.FormEvent<HTMLFormElement>){
-
-    e.preventDefault(); //  prevent default
+  function handleSubmitTheForm(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault(); // prevent default
 
     if (numberOfTires < 0) { // check if tires negative number
       alert('Number of tires cannot be negative.');
-      return; 
+      return;
     }
 
-    const customerData = { //  collect data from the state
+    const customerData = { // collect data from the state
       customer_name: customerName,
       car_registration_number: registrationNumber,
       car_model: carModel || null, // null if not present
@@ -43,118 +47,183 @@ export default function CustomerForms() {
       number_of_tires: numberOfTires,
     };
 
-    setIsLoading(true); 
+    setIsLoading(true);
 
-    fetch('http://localhost:3000/customers',{
-      method: 'POST', 
+    fetch('http://localhost:3000/customers', {
+      method: 'POST',
       headers: {
         'Content-type': 'application/json', // note that the data is in JSON
       },
       body: JSON.stringify(customerData), // object to JSON string
     })
-    .then(response => {
-      if (!response.ok){
-        throw new Error('Network response was not ok');
-      }
-      return response.json(); // processing the response
-    })
-    .then(data => {
-      console.log('Success:', data);
-      alert('Customer added successfully!');
-      // clear the form
-      clearForm(); 
-    })
-    .catch((error) => {
-      console.error('Error', error)
-      alert('Error adding customer: ' + error.message);
-    })
-    .finally(() =>{
-      setIsLoading(false);
-    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json(); // processing the response
+      })
+      .then(data => {
+        console.log('Success:', data);
+        alert('Customer added successfully!');
+        // clear the form
+        clearForm();
+      })
+      .catch((error) => {
+        console.error('Error', error);
+        alert('Error adding customer: ' + error.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }
 
   return (
-    <div className="customer-forms">
-      <h2>Add a new customer</h2>
+    <div style={{ maxWidth: 600, margin: 'auto', padding: '20px' }}>
+      <Typography variant="h3" sx={{ color: '#1976d2' }}gutterBottom textAlign="center">
+        Add a new customer
+      </Typography>
       <form onSubmit={handleSubmitTheForm}>
         <div>
-          <label htmlFor="customerName">Name:</label> 
-          <input 
-          type="text" 
-          id="customerName"
-          value={customerName}
-          onChange={(e) => setCustomerName(e.target.value)}
-          required
+          <TextField
+            label="Name"
+            variant="outlined"
+            fullWidth
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+            required
+            InputLabelProps={{ style: { color: '#001f3f' } }} // цвет метки
+            InputProps={{
+              style: { backgroundColor: '#ffffff', color: '#2f8c8f' }, // цвет поля
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#2f8c8f' }, // цвет рамки
+              marginBottom: 2 // отступ между полями
+            }}
           />
         </div>
 
         <div>
-          <label htmlFor="registrationNumber">Registration Number:</label>
-          <input
-            type="text"
-            id="registrationNumber"
+          <TextField
+            label="Registration Number"
+            variant="outlined"
+            fullWidth
             value={registrationNumber}
             onChange={(e) => setRegistrationNumber(e.target.value)}
             required
+            InputLabelProps={{ style: { color: '#001f3f' } }}
+            InputProps={{
+              style: { backgroundColor: '#ffffff', color: '#001f3f' },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#2f8c8f' },
+              marginBottom: 2
+            }}
           />
         </div>
 
         <div>
-          <label htmlFor="carModel">Car Model:</label>
-          <input 
-          type="text"
-          id="carModel"
-          value={carModel}
-          onChange={(e) => setCarModel(e.target.value)}
-          required
+          <TextField
+            label="Car Model"
+            variant="outlined"
+            fullWidth
+            value={carModel}
+            onChange={(e) => setCarModel(e.target.value)}
+            required
+            InputLabelProps={{ style: { color: '#001f3f' } }}
+            InputProps={{
+              style: { backgroundColor: '#ffffff', color: '#001f3f' },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#2f8c8f' },
+              marginBottom: 2
+            }}
           />
         </div>
 
         <div>
-          <label htmlFor="tireSize">Tire Size:</label>
-          <input type="text"
-          id="tireSize"
-          value={tireSize}
-          onChange={(e) => setTireSize(e.target.value)}
-          required 
+          <TextField
+            label="Tire Size"
+            variant="outlined"
+            fullWidth
+            value={tireSize}
+            onChange={(e) => setTireSize(e.target.value)}
+            required
+            InputLabelProps={{ style: { color: '#001f3f' } }}
+            InputProps={{
+              style: { backgroundColor: '#ffffff', color: '#001f3f' },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#2f8c8f' },
+              marginBottom: 2
+            }}
           />
         </div>
 
         <div>
-          <label htmlFor="tireManufacturer">Tire Manufacturer:</label>
-          <input type="text" 
-          id="tireManufacturer"
-          value={tireManufacturer}
-          onChange={(e) => setTireManufacturer(e.target.value)}
-          required
+          <TextField
+            label="Tire Manufacturer"
+            variant="outlined"
+            fullWidth
+            value={tireManufacturer}
+            onChange={(e) => setTireManufacturer(e.target.value)}
+            required
+            InputLabelProps={{ style: { color: '#001f3f' } }}
+            InputProps={{
+              style: { backgroundColor: '#ffffff', color: '#001f3f' },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#2f8c8f' },
+              marginBottom: 2
+            }}
           />
         </div>
 
         <div>
-          <label htmlFor="warehouseName">Warehouse Name:</label>
-          <input
-            type="text"
-            id="warehouseName"
+          <TextField
+            label="Warehouse Name"
+            variant="outlined"
+            fullWidth
             value={warehouseName}
             onChange={(e) => setWarehouseName(e.target.value)}
             required
-          />
-        </div>
-        
-        <div>
-          <label htmlFor="numberOfTires">Number of Tires:</label>
-          <input
-            type="number"
-            id="numberOfTires"
-            value={numberOfTires || ''}
-            onChange={(e) => setNumberOfTires(e.target.value === '' ? 0 : parseInt(e.target.value, 10))}
-            required
+            InputLabelProps={{ style: { color: '#001f3f' } }}
+            InputProps={{
+              style: { backgroundColor: '#ffffff', color: '#001f3f' },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#2f8c8f' },
+              marginBottom: 2
+            }}
           />
         </div>
 
-        <button type="submit" disabled={isLoading}> {isLoading ? 'Adding...' : 'Add Customer'}</button>
-        
+        <div>
+          <TextField
+            label="Number of Tires"
+            type="number"
+            variant="outlined"
+            fullWidth
+            value={numberOfTires || ''}
+            onChange={(e) => setNumberOfTires(e.target.value === '' ? 0 : parseInt(e.target.value, 10))}
+            required
+            InputLabelProps={{ style: { color: '#001f3f' } }}
+            InputProps={{
+              style: { backgroundColor: '#ffffff', color: '#001f3f' },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#2f8c8f' },
+              marginBottom: 2
+            }}
+          />
+        </div>
+
+        {/* Оборачивание кнопки в контейнер с flexbox для центрирования */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+        <CustomButton to="/customers">View Customers</CustomButton>
+        </div>
       </form>
     </div>
-  )
+  );
 }
+
+

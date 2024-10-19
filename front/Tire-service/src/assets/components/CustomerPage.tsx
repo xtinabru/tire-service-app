@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'; 
 import { FaTrash } from 'react-icons/fa';
-import '../styles/CustomerPage.css'; 
+
 
 interface Customer {
   id: number;

@@ -1,6 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-
+import {
+  TextField,
+  Button,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from '@mui/material';
+import newCusPic from '../styles/images/new_customer_pic.png'; 
 
 interface TireFormProps {
   onTireAdded: () => void;
@@ -15,33 +25,47 @@ interface Tire {
 
 export default function TireForm({ onTireAdded }: TireFormProps) {
   const { customerId } = useParams<{ customerId: string }>();
-  const parsedCustomerId = Number(customerId); 
+  const parsedCustomerId = Number(customerId);
   const [tire_size, setSize] = useState('');
   const [tire_manufacturer, setManufacturer] = useState('');
   const [tire_position, setPosition] = useState('');
   const [tires, setTires] = useState<Tire[]>([]);
 
   useEffect(() => {
-    fetchTires();
-  }, [parsedCustomerId]);
+    document.body.style.backgroundImage = `url(${newCusPic})`;
+    document.body.style.backgroundRepeat = 'no-repeat';
+    document.body.style.backgroundSize = '420px 300px'; 
+    document.body.style.backgroundPosition = 'left bottom';
 
-  const fetchTires = () => {
+    return () => {
+      document.body.style.backgroundImage = '';
+      document.body.style.backgroundRepeat = '';
+      document.body.style.backgroundSize = '';
+      document.body.style.backgroundPosition = '';
+    };
+  }, []);
+
+  const fetchTires = useCallback(() => {
     fetch(`http://localhost:3000/customers/${parsedCustomerId}/tires`)
       .then(response => response.json())
       .then(data => {
-        console.log('Fetched Tires:', data); // Логируем полученные шины
+        console.log('Fetched Tires:', data);
         setTires(data);
       })
       .catch(error => console.error('Error fetching tires:', error));
-  };
+  }, [parsedCustomerId]); 
+
+  useEffect(() => {
+    fetchTires();
+  }, [fetchTires]); 
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const newTire = { 
-      tire_size, 
-      tire_manufacturer, 
-      tire_position 
+    const newTire = {
+      tire_size,
+      tire_manufacturer,
+      tire_position,
     };
 
     console.log('Submitting Tire with data:', newTire);
@@ -49,80 +73,104 @@ export default function TireForm({ onTireAdded }: TireFormProps) {
     fetch(`http://localhost:3000/customers/${parsedCustomerId}/tires`, {
       method: 'POST',
       headers: {
-          'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(newTire), 
-  })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Success:', data);
-      onTireAdded();
-      fetchTires();
+      body: JSON.stringify(newTire),
     })
-    .catch(error => {
-      console.error('Error:', error);
-    });
+      .then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
+        onTireAdded();
+        fetchTires(); 
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div style={{ padding: '20px', maxWidth: '100%', margin: '0 auto', maxHeight: '100vh', overflowY: 'auto' }}>
       <div>
-        <label>
-          Tire Size:
-          <input
-            type="text"
+        <Typography variant="h4" gutterBottom textAlign="center">
+          Add Tire
+        </Typography>
+        <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
+          <TextField
+            label="Tire Size"
+            variant="outlined"
             value={tire_size}
             onChange={(e) => setSize(e.target.value)}
             required
+            style={{ marginBottom: '30px', marginLeft: '30%', marginTop: '1%', width: '40%' }}
           />
-        </label>
-      </div>
-      <div>
-        <label>
-          Manufacturer:
-          <input
-            type="text"
+          <TextField
+            label="Manufacturer"
+            variant="outlined"
             value={tire_manufacturer}
             onChange={(e) => setManufacturer(e.target.value)}
             required
+            style={{ marginBottom: '30px', marginLeft: '30%', width: '40%' }}
           />
-        </label>
-      </div>
-      <div>
-        <label>
-          Position:
-          <input
-            type="text"
+          <TextField
+            label="Position"
+            variant="outlined"
             value={tire_position}
             onChange={(e) => setPosition(e.target.value)}
             required
+            style={{ marginBottom: '30px', marginLeft: '30%', width: '40%' }}
           />
-        </label>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+            <Button type="submit" variant="contained" color="primary" style={{ width: '15%', marginBottom: '2px' }}>
+              Add Tire
+            </Button>
+          </div>
+        </form>
       </div>
-      <button type="submit">Add Tire</button>
-      <h2>Tires in stock</h2>
-      {tires.length > 0 ? (
-        <table>
-          <thead>
-            <tr>
-              <th>Tire Size</th>
-              <th>Manufacturer</th>
-              <th>Position</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tires.map(tire => (
-              <tr key={tire.id}>
-                <td>{tire.tire_size}</td>
-                <td>{tire.tire_manufacturer}</td>
-                <td>{tire.tire_position}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p>No tires found for this customer.</p>
-      )}
-    </form>
+
+      <div style={{
+        marginBottom: '80px',
+        marginLeft: '30%',
+        width: '40%',
+        position: 'relative',
+        textAlign: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        borderRadius: '10px',
+        padding: '20px',
+      }}>
+        <Typography variant="h4" gutterBottom>
+          Tires in stock
+        </Typography>
+        {tires.length > 0 ? (
+          <Table style={{
+            marginBottom: '20px',
+            marginLeft: '8%',
+            width: '80%',
+            position: 'relative',
+            textAlign: 'center',
+          }}>
+            <TableHead>
+              <TableRow>
+                <TableCell align="center" style={{ borderBottom: 'none' }}>Tire Size</TableCell>
+                <TableCell align="center" style={{ borderBottom: 'none' }}>Manufacturer</TableCell>
+                <TableCell align="center" style={{ borderBottom: 'none' }}>Position</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {tires.map(tire => (
+                <TableRow key={tire.id}>
+                  <TableCell align="center" style={{ borderBottom: 'none' }}>{tire.tire_size}</TableCell>
+                  <TableCell align="center" style={{ borderBottom: 'none' }}>{tire.tire_manufacturer}</TableCell>
+                  <TableCell align="center" style={{ borderBottom: 'none' }}>{tire.tire_position}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <Typography variant="body1">
+            No tires found for this customer.
+          </Typography>
+        )}
+      </div>
+    </div>
   );
 }

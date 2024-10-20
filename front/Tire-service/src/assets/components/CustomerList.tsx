@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { TextField, Typography, Button, List, ListItem, ListItemText } from '@mui/material';
 
 
 interface Customer {
@@ -9,57 +10,67 @@ interface Customer {
 }
 
 export default function CustomerList() {
-
-  // create state for customer list
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState(''); 
-  const navigate = useNavigate(); // initialized useNavigate
+  const navigate = useNavigate();
 
-  // use useEffect to request data from the server
   useEffect(() => {
     fetch('http://localhost:3000/customers')
       .then(response => response.json())
       .then(data => {
-        setCustomers(data); // save received data into the state
+        setCustomers(data);
       })
       .catch(error => {
         console.error('Error fetching customers:', error);
       });
   }, []);
 
-  function handleViewDetails(customerId: number) {
-    // navigate to the page with the details
+  const handleViewDetails = (customerId: number) => {
     navigate(`/customers/${customerId}`);
-  }
+  };
 
-  // Filter customers based on the search term
   const filteredCustomers = customers.filter(customer => 
     customer.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     customer.car_registration_number.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="customer-list">
-      <h2>Our customers</h2>
-      {/* Search input */}
-      <input
-        type="text"
-        placeholder="Search by name or registration number"
+    <div style={{ padding: '20px', maxWidth: '100%', maxHeight: '100vh', overflowY: 'auto' }}>
+      <Typography variant="h4" gutterBottom textAlign="center" sx={{ color: '#1976d2' }}>
+        Our Customers
+      </Typography>
+      <TextField
+        label="Search by name or registration number"
+        variant="outlined"
+        fullWidth
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ marginBottom: '10px', padding: '5px', width: '300px' }}
+        sx={{
+          marginTop:2,
+          marginBottom: 2,
+          marginLeft: 44,
+          textAlign: 'center',
+          maxWidth: '58%',
+          '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#2f8c8f' },
+        }}
       />
-      <ul>
-        {/* Use filteredCustomers instead of customers */}
+      <List
+      sx={{
+        marginBottom: 10,
+        marginLeft: 42,
+        maxWidth: '60%',
+        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#2f8c8f' },
+      }}>
         {filteredCustomers.map((customer) => (
-          <li key={customer.id}>
-            {customer.customer_name} - {customer.car_registration_number}
-            <button onClick={() => handleViewDetails(customer.id)}>
+          <ListItem key={customer.id} secondaryAction={
+            <Button variant="contained" onClick={() => handleViewDetails(customer.id)} sx={{ backgroundColor: '#1976d2', color: '#ffffff' }}>
               View Details
-            </button>
-          </li>
+            </Button>
+          }>
+            <ListItemText primary={customer.customer_name} secondary={customer.car_registration_number} />
+          </ListItem>
         ))}
-      </ul>
+      </List>
     </div>
   );
 }

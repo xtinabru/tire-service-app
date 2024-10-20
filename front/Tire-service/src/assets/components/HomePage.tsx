@@ -3,8 +3,9 @@ import CustomButton from './CustomButton';
 import styles from './StylesThings';
 
 
-const textAlignValue: 'center' = 'center';
-const positionValue: 'absolute' = 'absolute';
+const textAlignValue = 'center' as const;
+const positionValue = 'absolute' as const;
+
 
 function HomePage() {
   return (

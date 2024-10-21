@@ -35,13 +35,13 @@ db.query('SELECT 1 + 1 AS solution', (err, results) => {
   else console.log('Test result:', results[0].solution); // Expect 2
 });
 
-/*********************************************************************/
+/*********************************************************************/ 
 // Home route
 app.get('/', (req, res) => {
   res.send('Hello! This is a server for tire collection');
 });
 
-/*********************************************************************/
+/*********************************************************************/ 
 // Get all customers or filter by name or registration number
 app.get('/customers', (req, res) => {
   const { name, registration } = req.query;
@@ -73,7 +73,7 @@ app.get('/customers', (req, res) => {
   });
 });
 
-/*********************************************************************/
+/*********************************************************************/ 
 // Create a new customer
 app.post('/customers', (req, res) => {
   const {
@@ -115,7 +115,7 @@ app.post('/customers', (req, res) => {
   });
 });
 
-/*********************************************************************/
+/*********************************************************************/ 
 // Get a specific customer by ID
 app.get('/customers/:id', (req, res) => {
   const customerId = req.params.id;
@@ -133,33 +133,7 @@ app.get('/customers/:id', (req, res) => {
   });
 });
 
-/*********************************************************************/
-// Add tire info for a customer
-<<<<<<< HEAD
-app.post('/customers/:id/tires', (req, res) => {
-    const { tire_size, tire_manufacturer, tire_position } = req.body;
-
-    // Проверка на наличие обязательных полей
-    if (!tire_size || !tire_manufacturer || !tire_position) {
-        console.error('Received body:', req.body); // Логируем полученные данные
-        return res.status(400).json({ error: 'Required fields are missing' });
-    }
-
-    // SQL запрос для добавления новой шины
-    const query = `INSERT INTO tires (tire_size, tire_manufacturer, tire_position, customer_id) VALUES (?, ?, ?, ?)`;
-    
-    db.query(query, [tire_size, tire_manufacturer, tire_position, req.params.id], (err, results) => {
-        if (err) {
-            console.error('Error:', err);
-            return res.status(500).json({ error: 'Internal Server Error' });
-        }
-        res.status(201).json({ id: results.insertId, tire_size, tire_manufacturer, tire_position });
-    });
-});
-
-
-
-=======
+/*********************************************************************/ 
 // Add tire info for a customer
 app.post('/customers/:id/tires', (req, res) => {
   const { tire_size, tire_manufacturer, tire_position } = req.body;
@@ -182,8 +156,7 @@ app.post('/customers/:id/tires', (req, res) => {
   });
 });
 
->>>>>>> e2bff07335aee00196e79728f8fb67425d9608d3
-/*********************************************************************/
+/*********************************************************************/ 
 // Get all tires for a specific customer
 app.get('/customers/:id/tires', (req, res) => {
   const customerId = req.params.id;
@@ -201,7 +174,7 @@ app.get('/customers/:id/tires', (req, res) => {
   });
 });
 
-/*********************************************************************/
+/*********************************************************************/ 
 // Delete a customer
 app.delete('/customers/:id', (req, res) => {
   const customerId = req.params.id;
@@ -216,7 +189,7 @@ app.delete('/customers/:id', (req, res) => {
   });
 });
 
-/*********************************************************************/
+/*********************************************************************/ 
 // Delete a specific tire for a customer
 app.delete('/customers/:customerId/tires/:tireId', (req, res) => {
   const { customerId, tireId } = req.params;
@@ -234,10 +207,10 @@ app.delete('/customers/:customerId/tires/:tireId', (req, res) => {
   });
 });
 
-/*********************************************************************/
-// route to get tire labels for a specific customer
+/*********************************************************************/ 
+// Route to get tire labels for a specific customer
 app.get('/customers/:id/tires/labels', (req, res) => {
-  const customerId = req.params.id; // get the customer id from the request
+  const customerId = req.params.id; // Get the customer ID from the request
 
   // SQL query to get tire labels for a specific customer
   const query = `
@@ -266,7 +239,8 @@ app.get('/customers/:id/tires/labels', (req, res) => {
     res.json(results);
   });
 });
-/*********************************************************************/
+
+/*********************************************************************/ 
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

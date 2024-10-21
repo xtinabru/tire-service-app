@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TextField, Typography, Button, List, ListItem, ListItemText } from '@mui/material';
-
+import { TextField, Typography, Button, List, ListItem, ListItemText, IconButton } from '@mui/material';
+import { FaTrash } from 'react-icons/fa'; 
 
 interface Customer {
   id: number; 
@@ -25,6 +25,22 @@ export default function CustomerList() {
       });
   }, []);
 
+  const handleDeleteCustomer = (customerId: number) => {
+    fetch(`http://localhost:3000/customers/${customerId}`, {
+      method: 'DELETE',
+    })
+    .then(response => {
+      if (response.ok) {
+        setCustomers(customers.filter(customer => customer.id !== customerId));
+      } else {
+        console.error('Error deleting customer:', response.statusText);
+      }
+    })
+    .catch(error => {
+      console.error('Error deleting customer:', error);
+    });
+  };
+
   const handleViewDetails = (customerId: number) => {
     navigate(`/customers/${customerId}`);
   };
@@ -46,7 +62,7 @@ export default function CustomerList() {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         sx={{
-          marginTop:2,
+          marginTop: 2,
           marginBottom: 2,
           marginLeft: 44,
           textAlign: 'center',
@@ -63,9 +79,18 @@ export default function CustomerList() {
       }}>
         {filteredCustomers.map((customer) => (
           <ListItem key={customer.id} secondaryAction={
-            <Button variant="contained" onClick={() => handleViewDetails(customer.id)} sx={{ backgroundColor: '#1976d2', color: '#ffffff' }}>
-              View Details
-            </Button>
+            <>
+              <Button
+                variant="contained"
+                onClick={() => handleViewDetails(customer.id)}
+                sx={{ backgroundColor: '#1976d2', color: '#ffffff', marginRight: '10px' }}
+              >
+                View Details
+              </Button>
+              <IconButton onClick={() => handleDeleteCustomer(customer.id)} sx={{ color: '#d32f2f' }}>
+                <FaTrash />
+              </IconButton>
+            </>
           }>
             <ListItemText primary={customer.customer_name} secondary={customer.car_registration_number} />
           </ListItem>

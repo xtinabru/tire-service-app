@@ -38,7 +38,7 @@ export default function PrintLabels() {
 
   return (
     <div style={{ padding: '20px', maxWidth: '100%', margin: '0 auto', maxHeight: '100vh', overflowY: 'auto' }}>
-      <Typography variant="h4" gutterBottom textAlign="center">
+      <Typography variant="h4" gutterBottom textAlign="center" sx={{ color: '#1976d2'}}>
         Print Tire Labels
       </Typography>
 

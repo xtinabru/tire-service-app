@@ -1,6 +1,7 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { TextField, Typography, Button } from '@mui/material';
 import newCusPic from '../styles/images/new_customer_pic.png';
+import { useNavigate } from 'react-router-dom';  // Добавлено
 
 interface FormData {
   customerName: string;
@@ -25,6 +26,7 @@ const initialState: FormData = {
 export default function CustomerForms() {
   const [formData, setFormData] = useState<FormData>(initialState);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();  // Добавлено
 
   useEffect(() => {
     document.body.style.backgroundImage = `url(${newCusPic})`;
@@ -39,7 +41,6 @@ export default function CustomerForms() {
 
   const clearForm = () => setFormData(initialState);
 
-  // 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -70,10 +71,10 @@ export default function CustomerForms() {
         body: JSON.stringify(customerData),
       });
       if (!response.ok) throw new Error('Network response was not ok');
-      alert('Customer added successfully!');
+      alert('Customer added successfully! Redirecting to the home page...');
       clearForm();
+      navigate('/');  // Редирект на главную страницу
     } catch (error: unknown) {
-
       if (error instanceof Error) {
         alert('Error adding customer: ' + error.message);
       }

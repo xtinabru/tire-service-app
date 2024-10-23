@@ -28,12 +28,11 @@ ___
 
 2.**Install dependencies** 📦
 
-Navigate to the back folder and install dependencies:
+Navigate to the back folder, front folder and install dependencies:
   ```bash
   cd back
   npm install
   ```
-Navigate to the front folder and install dependencies:
   ```bash
   cd ../front
   npm install
